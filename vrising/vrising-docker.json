@@ -1,0 +1,83 @@
+{
+  "name": "VRisign",
+  "display": "VRisign Dedicated Server (Runs on Docker)",
+  "type": "vrisign",
+  "install": [
+    {
+      "commands": [
+        "docker pull trueosiris/vrising",
+        "mkdir -p ./vrising/server/",
+        "mkdir -p ./vrising/persistentdata/"
+      ],
+      "type": "command"
+    },
+    {
+      "target": "docker-compose.yml",
+      "text": "services:\n  vrising:\n    image: trueosiris/vrising\n    environment:\n      - TZ=${timezone}\n      - SERVERNAME=${servername}\n    volumes:\n      - type: bind\n        source: ./vrising/server\n        target: /mnt/vrising/server\n        bind:\n          create_host_path: true\n      - type: bind\n        source: ./vrising/persistentdata\n        target: /mnt/vrising/persistentdata\n        bind:\n          create_host_path: true\n    ports:\n      - '${gameport}:${gameport}/udp'\n      - '${queryport}:${queryport}/udp'\n    restart: unless-stopped\n    network_mode: bridge",
+      "type": "writefile"
+    }
+  ],
+  "run": {
+    "stop": "docker compose down",
+    "command": "docker compose up",
+    "workingDirectory": "",
+    "pre": [
+      {
+        "target": "docker-compose.yml",
+        "text": "services:\n  vrising:\n    image: trueosiris/vrising\n    environment:\n      - TZ=${timezone}\n      - SERVERNAME=${servername}\n    volumes:\n      - type: bind\n        source: ./vrising/server\n        target: /mnt/vrising/server\n        bind:\n          create_host_path: true\n      - type: bind\n        source: ./vrising/persistentdata\n        target: /mnt/vrising/persistentdata\n        bind:\n          create_host_path: true\n    ports:\n      - '${gameport}:${gameport}/udp'\n      - '${queryport}:${queryport}/udp'\n    restart: unless-stopped\n    network_mode: bridge",
+        "type": "writefile"
+      }
+    ],
+    "post": [],
+    "environmentVars": {
+      "SERVERNAME": "${servername}",
+      "TZ": "${timezone}"
+    }
+  },
+  "data": {
+    "gameport": {
+      "type": "integer",
+      "desc": "To overrule Port in ServerHostSettings.json config",
+      "display": "Game port",
+      "required": true,
+      "value": "9876",
+      "userEdit": true
+    },
+    "queryport": {
+      "type": "string",
+      "desc": "to overrule QueryPort in ServerHostSettings.json config",
+      "display": "Query port",
+      "required": true,
+      "value": "9877",
+      "userEdit": true
+    },
+    "servername": {
+      "type": "string",
+      "desc": "Mandatory setting that overrules the ServerHostSettings.json entry",
+      "display": "Server name",
+      "required": true,
+      "value": "v-risign-puffer",
+      "userEdit": true
+    },
+    "timezone": {
+      "type": "string",
+      "desc": "Timezone for ntpdate",
+      "display": "Timezone",
+      "required": true,
+      "value": "Europe/Paris",
+      "userEdit": true
+    }
+  },
+  "environment": {
+    "type": "tty"
+  },
+  "supportedEnvironments": [
+    {
+      "type": "tty"
+    }
+  ],
+  "requirements": {
+    "os": "linux",
+    "arch": "amd64"
+  }
+}
